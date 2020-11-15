@@ -2,8 +2,14 @@ const gameBox = document.createElement('div');
 gameBox.className = 'gameBox';
 document.body.append(gameBox);
 
+const footer = document.createElement('div');
+footer.className = 'footer';
+document.body.append(footer);
+
 const cellSize = 100;
 let finish = false;
+
+let moves = 0;
 
 const empty = {
     top: 0,
@@ -16,7 +22,7 @@ const temp = {
     left: 0
 };
 
-const cells = [];
+let cells = [];
 
 const checkFinish = () => {
     if (cells.every(cell => {
@@ -62,6 +68,8 @@ const move = (index) => {
     cell.left = emptyLeft;
     cell.top = emptyTop;
 
+    moves = moves + 1;
+    footer.querySelector('.move').textContent = `Move: ${moves}`;
     checkFinish();
 }
 
@@ -84,51 +92,89 @@ const randomSort = (numbers) => {
     return numbers;
 }
 
-let numbers = [];
-for (let i = 1; i <= 15; i++) {
-    numbers.push(i);
-}
-numbers = randomSort(numbers);
+const constructCells = () => {
+    let numbers = [];
+    for (let i = 1; i <= 15; i++) {
+        numbers.push(i);
+    }
+    numbers = randomSort(numbers);
 
-for (let i = 0; i <= 15; i++) {
-    const cell = document.createElement('div');
-    let value, left, top;
-    
-    if (i === 0) {
-        cell.className = 'cell_empty';
-        value = 0;
-        left = 0;
-        top = 0;
-    } else {
-        value = numbers[i-1];
+    for (let i = 0; i <= 15; i++) {
+        const cell = document.createElement('div');
+        let value, left, top;
+        
+        if (i === 0) {
+            cell.className = 'cell_empty';
+            value = 0;
+            left = 0;
+            top = 0;
+        } else {
+            value = numbers[i-1];
 
-        cell.className = 'cell';
-        cell.draggable = true;
-        cell.innerHTML = value;
+            cell.className = 'cell';
+            cell.draggable = true;
+            cell.innerHTML = value;
 
-        left = i % 4;
-        top = (i - left) / 4;
+            left = i % 4;
+            top = (i - left) / 4;
+        }
+
+        cells.push({
+            left: left,
+            top: top,
+            element: cell,
+            value: value
+        });
+
+        cell.style.left = `${left * cellSize}px`;
+        cell.style.top = `${top * cellSize}px`;
+        
+        gameBox.append(cell);
+
+        cell.addEventListener('click', () => {
+            move(i);
+        });
 
     }
-
-    cells.push({
-        left: left,
-        top: top,
-        element: cell,
-        value: value
-    });
-
-    cell.style.left = `${left * cellSize}px`;
-    cell.style.top = `${top * cellSize}px`;
-    
-    gameBox.append(cell);
-
-    cell.addEventListener('click', () => {
-        move(i);
-    });
-
 }
 
+const resetBtn = document.createElement('button');
+resetBtn.className = 'resetBtn';
+resetBtn.appendChild(document.createTextNode("Restart"));
+footer.append(resetBtn);
+resetBtn.addEventListener('click', () => {
+    const cellsForDel = gameBox.querySelectorAll('.cell');
+    cellsForDel.forEach(element => {
+        element.parentNode.removeChild(element); 
+    });
+    const emptyCell = gameBox.querySelector('.cell_empty');
+    emptyCell.parentNode.removeChild(emptyCell); 
+    empty.top = 0;
+    empty.left = 0;
+    empty.value = 0;
+    temp.top = 0;
+    temp.left = 0;
+    cells = [];
+    moves = 0;
+    footer.querySelector('.move').textContent = `Move: ${moves}`;
+    constructCells();
+})
+
+constructCells();
+
+const curMove = document.createElement('span');
+curMove.className = 'move';
+// curMove.appendChild(document.createTextNode("Move: 100"));
+footer.append(curMove);
+curMove.textContent = `Move: 0`;
+
+const time = document.createElement('span');
+time.className = 'time';
+// time.appendChild(document.createTextNode("Time: 100"));
+footer.append(time);
+// time.textContent = `Move ${times}`;
+
+// drag & drop
 const eCellEmpty = gameBox.querySelector('.cell_empty');
 const eCells = gameBox.querySelectorAll('.cell');
 
@@ -181,6 +227,11 @@ gameBox.addEventListener('drop', (evt) => {
     currentElement.style.left = `${empty.left * cellSize}px`;
     currentElement.style.top = `${empty.top * cellSize}px`;
 
+    moves = moves + 1;
+    footer.querySelector('.move').textContent = `Move: ${moves}`;
+
     checkFinish();
     
 })
+
+
