@@ -1,0 +1,39 @@
+.gameBox {
+    width: 400px;
+    height: 400px;
+    border: 1px solid black;
+    border-radius: 10px;
+    position: relative;
+    margin: 0 auto;
+}
+
+.cell_empty {
+    width: 100px;
+    height: 100px;
+    position: absolute;
+}
+
+.cell {
+    box-sizing: border-box;
+    width: 100px;
+    height: 100px;
+    border: 3px solid green;
+    background-color: lightgreen;
+    border-radius: 10px;
+    position: absolute;
+    font-size: 60px;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: 0.2s;
+}
+
+.cell:hover {
+    background-color: lightblue;
+    border-color: blue;
+}
+
+.selected {
+    opacity: 0.6;
+}
