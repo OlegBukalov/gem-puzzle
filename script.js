@@ -42,6 +42,25 @@ const checkFinish = () => {
     }
 }
 
+const saveGame = () => {
+    let masCells = [];
+    let t = 0,
+        l = 0;
+    for (let i = 0; i < cells.length; i++) {
+        for (let j = 0; j < cells.length; j++) {
+            if (t === cells[j].top && l === cells[j].left) {
+                masCells.push(parseInt(cells[j].value));
+                l++;
+                if (l % 4 === 0) {
+                    l = 0;
+                    t++;
+                }
+            }    
+        }
+    }
+    localStorage.setItem('masCells', masCells);
+}
+
 const move = (index) => {
 
     const cell = cells[index];
@@ -74,6 +93,8 @@ const move = (index) => {
     moves = moves + 1;
     footer.querySelector('.move').textContent = `Move: ${moves}`;
     checkFinish();
+    saveGame();
+
 }
 
 const randomSort = (numbers) => {
@@ -102,42 +123,72 @@ const getSaveGame = () => {
     if (localStorage.getItem('min') !== null) {
         min = localStorage.getItem('min');
     }
-    // if (localStorage.getItem('cells') !== null) {
-    //     cellsghj = localStorage.getItem('cells');
-    //     console.log(cellsghj);
-    // }
+    if (localStorage.getItem('masCells') !== null) {
+        return localStorage.getItem('masCells').split(',');
+    } else {
+        return [];
+    }
+    
 }
 
 const constructCells = (restart = false) => {
-    if (!restart) {
-        getSaveGame();
-    }
     let numbers = [];
-    for (let i = 1; i <= 15; i++) {
-        numbers.push(i);
+    let loadSaveGame = false;
+    
+    if (!restart) {
+        numbers = getSaveGame();
     }
-    numbers = randomSort(numbers);
+    
+    if (numbers.length === 0) {
+        
+        for (let i = 1; i <= 15; i++) {
+            numbers.push(i);
+        }
+        numbers = randomSort(numbers);
+    } else {
+        loadSaveGame = true;
+    }
 
     for (let i = 0; i <= 15; i++) {
         const cell = document.createElement('div');
         let value, left, top;
         
-        if (i === 0) {
-            cell.className = 'cell_empty';
-            value = 0;
-            left = 0;
-            top = 0;
+        if (loadSaveGame) {
+            if (numbers[i] == 0) {
+                cell.className = 'cell_empty';
+                value = 0;
+                left = i % 4;
+                top = (i - left) / 4;
+                empty.left = left;
+                empty.top = top;
+            } else {
+                value = numbers[i];
+    
+                cell.className = 'cell';
+                cell.draggable = true;
+                cell.innerHTML = value;
+    
+                left = i % 4;
+                top = (i - left) / 4;
+            }
         } else {
-            value = numbers[i-1];
-
-            cell.className = 'cell';
-            cell.draggable = true;
-            cell.innerHTML = value;
-
-            left = i % 4;
-            top = (i - left) / 4;
+            if (i === 0) {
+                cell.className = 'cell_empty';
+                value = 0;
+                left = 0;
+                top = 0;
+            } else {
+                value = numbers[i-1];
+    
+                cell.className = 'cell';
+                cell.draggable = true;
+                cell.innerHTML = value;
+    
+                left = i % 4;
+                top = (i - left) / 4;
+            }
         }
-
+        
         cells.push({
             left: left,
             top: top,
@@ -201,7 +252,6 @@ const showTime = () => {
     localStorage.setItem('sec', sec);
     localStorage.setItem('min', min);
     localStorage.setItem('moves', moves);
-    // localStorage.setItem('cells', cells[5].element.top);
     document.querySelector('.time').innerHTML = `Time: ${min>0 ? String(addZero(min))+'m' : ''} ${addZero(sec)}s`;
     setTimeout(showTime, 1000);
 }
@@ -235,7 +285,6 @@ gameBox.addEventListener('dragend', (evt) => {
 gameBox.addEventListener('dragover', (evt) => {
     evt.preventDefault();
 })
-
 gameBox.addEventListener('drop', (evt) => {
     const activeElement = gameBox.querySelector('.selected');
     const currentElement = evt.target;
@@ -279,6 +328,7 @@ gameBox.addEventListener('drop', (evt) => {
     footer.querySelector('.move').textContent = `Move: ${moves}`;
 
     checkFinish();
+    saveGame();
     
 })
 
