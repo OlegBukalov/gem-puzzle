@@ -10,6 +10,8 @@ const cellSize = 100;
 let finish = false;
 
 let moves = 0;
+let min = 0;
+let sec = 0;
 
 const empty = {
     top: 0,
@@ -35,7 +37,7 @@ const checkFinish = () => {
         finish = false;
     }
     if (finish) {
-        alert('You won');
+        alert('You won!!! Your result: '+moves+' steps & your time: '+min+' min '+sec+' sec!');
     }
 }
 
@@ -132,7 +134,10 @@ const constructCells = () => {
         gameBox.append(cell);
 
         cell.addEventListener('click', () => {
-            move(i);
+            if (cells[i].top === empty.top && cells[i].left === empty.left) {
+            } else {
+                move(i);    
+            }
         });
 
     }
@@ -156,23 +161,38 @@ resetBtn.addEventListener('click', () => {
     temp.left = 0;
     cells = [];
     moves = 0;
+    min = 0;
+    sec = 0;
     footer.querySelector('.move').textContent = `Move: ${moves}`;
     constructCells();
 })
+
+const addZero = (n) => {
+    return (parseInt(n, 10) < 10 ? '0' : '') + n;
+}
+
+const showTime = () => {
+    sec++;
+    if (sec % 60 === 0) {
+        sec = 0;
+        min++;
+    }
+    document.querySelector('.time').innerHTML = `Time: ${min>0 ? String(addZero(min))+'m' : ''} ${addZero(sec)}s`;
+    setTimeout(showTime, 1000);
+}
 
 constructCells();
 
 const curMove = document.createElement('span');
 curMove.className = 'move';
-// curMove.appendChild(document.createTextNode("Move: 100"));
 footer.append(curMove);
 curMove.textContent = `Move: 0`;
 
 const time = document.createElement('span');
 time.className = 'time';
-// time.appendChild(document.createTextNode("Time: 100"));
 footer.append(time);
-// time.textContent = `Move ${times}`;
+time.textContent = `Time: 0`;
+showTime();
 
 // drag & drop
 const eCellEmpty = gameBox.querySelector('.cell_empty');
