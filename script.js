@@ -37,7 +37,8 @@ const checkFinish = () => {
         finish = false;
     }
     if (finish) {
-        alert('You won!!! Your result: '+moves+' steps & your time: '+min+' min '+sec+' sec!');
+        alert('Ура! Вы решили головоломку за '+min+':'+sec+' и '+moves+' ходов');
+        restartFunc();
     }
 }
 
@@ -94,7 +95,23 @@ const randomSort = (numbers) => {
     return numbers;
 }
 
-const constructCells = () => {
+const getSaveGame = () => {
+    if (localStorage.getItem('sec') !== null) {
+        sec = localStorage.getItem('sec');
+    }
+    if (localStorage.getItem('min') !== null) {
+        min = localStorage.getItem('min');
+    }
+    // if (localStorage.getItem('cells') !== null) {
+    //     cellsghj = localStorage.getItem('cells');
+    //     console.log(cellsghj);
+    // }
+}
+
+const constructCells = (restart = false) => {
+    if (!restart) {
+        getSaveGame();
+    }
     let numbers = [];
     for (let i = 1; i <= 15; i++) {
         numbers.push(i);
@@ -143,11 +160,7 @@ const constructCells = () => {
     }
 }
 
-const resetBtn = document.createElement('button');
-resetBtn.className = 'resetBtn';
-resetBtn.appendChild(document.createTextNode("Restart"));
-footer.append(resetBtn);
-resetBtn.addEventListener('click', () => {
+const restartFunc = () => {
     const cellsForDel = gameBox.querySelectorAll('.cell');
     cellsForDel.forEach(element => {
         element.parentNode.removeChild(element); 
@@ -164,7 +177,15 @@ resetBtn.addEventListener('click', () => {
     min = 0;
     sec = 0;
     footer.querySelector('.move').textContent = `Move: ${moves}`;
-    constructCells();
+    constructCells(true);
+}
+
+const resetBtn = document.createElement('button');
+resetBtn.className = 'resetBtn';
+resetBtn.appendChild(document.createTextNode("Restart"));
+footer.append(resetBtn);
+resetBtn.addEventListener('click', () => {
+    restartFunc();
 })
 
 const addZero = (n) => {
@@ -177,6 +198,10 @@ const showTime = () => {
         sec = 0;
         min++;
     }
+    localStorage.setItem('sec', sec);
+    localStorage.setItem('min', min);
+    localStorage.setItem('moves', moves);
+    // localStorage.setItem('cells', cells[5].element.top);
     document.querySelector('.time').innerHTML = `Time: ${min>0 ? String(addZero(min))+'m' : ''} ${addZero(sec)}s`;
     setTimeout(showTime, 1000);
 }
@@ -186,7 +211,10 @@ constructCells();
 const curMove = document.createElement('span');
 curMove.className = 'move';
 footer.append(curMove);
-curMove.textContent = `Move: 0`;
+if (localStorage.getItem('moves') !== null) {
+    moves = parseInt(localStorage.getItem('moves'));
+}
+curMove.textContent = `Move: ${moves}`;
 
 const time = document.createElement('span');
 time.className = 'time';
